@@ -14,7 +14,7 @@
  * productTpl           - A template for an individual product, defaults to magentoProduct
  * categoryTpl          - A template for individual categories, defaults to magentoCategory
  * categoryWrapperTpl   - A template for the product categories, defaults to magentoCategoryWrapper
- * sortby               - Sortby field
+ * sortby               - Sortby field, one of sku, name, price or product_id
  * sortdir              - Direction to sort, defaults to ASC
  * limit                - Limit to, defaults to 10
  * 
@@ -48,32 +48,56 @@ $categoryWrapperTpl = !empty($categoryWrapperTpl) ? $categoryWrapperTpl : 'magen
 $productTpl = !empty($itemTpl) ? $productTpl : 'magentoProduct';
 $categoryTpl = !empty($categoryTpl) ? $categoryTpl : 'magentoCategory';
 $limit = isset($limit) ? (integer) $limit : 10;
-$sortby = isset($sortby) ? $sortby : 'SKU';
+$sortby = isset($sortby) ? $sortby : 'sku';
 $sortdir = isset($sortdir) ? $sortdir : 'ASC';
 
 /* Create the SOAP proxy */
 $proxy = new SoapClient($WSDLURL);
 $sessionId = $proxy->login($apiUser, $apiKey);
 
+
 /* Get the products from the SKUID(s) */
-$output = "";
-$categoryOutput = "";
-$productCount = 0;
+$productArray = array();
+$sortArray = array();
 
 foreach ( $skuid as $aSkuid ) {
-    
-    $modx->unsetPlaceholders('oa_magento');
     
     try {
         $productInfo = $proxy->call($sessionId, 'product.info', $aSkuid);
     } catch (SoapFault $e) {
-        $error = $e->faultstring;
-        $error = "ERROR - Magento returns - " . "'" . $error . "'";
-        $output .= $error . " - For SKU " . "'" . $aSkuid . "'";
         continue;
     }
+    if ($sortby == 'price') {
+        
+        $productArray[floatval($productInfo[$sortby])] = $productInfo;
+        
+    } else {
+    
+        $productArray[$productInfo[$sortby]] = $productInfo;
+    }
+}
+
+/* Sort the array */
+if ( $sortdir == 'ASC') {
+    
+    ksort($productArray);
+    
+} else {
+    
+    krsort($productArray);
+    
+}
+
+/* Process the products */
+$output = "";
+$categoryOutput = "";
+$productCount = 0;
+foreach ( $productArray as $key => $productInfo) {
+    
+    $modx->unsetPlaceholders('oa_magento');
     $modx->toPlaceholders($productInfo, 'oa_magento' );
     $categories = $productInfo['categories'];
+    $categoryOutput = "";
     if (!empty($categories) ) {
         
         foreach ( $categories as $category ) {
@@ -96,5 +120,8 @@ foreach ( $skuid as $aSkuid ) {
     if ( $productCount == $limit ) break;
 }
 
+
+ 
+ 
 /* Set the product list placeholder */
 $modx->toPlaceholder('productlist', $output, 'oa_magento');
