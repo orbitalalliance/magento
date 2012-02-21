@@ -41,11 +41,6 @@
  * categorylist  - A list of the returned categories as themed by the magentoCategory template
  */
 
-/* Error code constants */
-define('100', "Requested store view not found.");
-define('101', "The product does not exist.");
-define('102', "Invalid data given.");
-
 /* Initialise our parameter set */
 $skuid = (!empty($skuid)) ? explode(',', $skuid) : 0;
 $wrapperTpl = !empty($wrapperTpl) ? $wrapperTpl : 'magentoWrapper';
@@ -63,7 +58,11 @@ $sessionId = $proxy->login($apiUser, $apiKey);
 /* Get the products from the SKUID(s) */
 $output = "";
 $categoryOutput = "";
+$productCount = 0;
+
 foreach ( $skuid as $aSkuid ) {
+    
+    $modx->unsetPlaceholders('oa_magento');
     
     try {
         $productInfo = $proxy->call($sessionId, 'product.info', $aSkuid);
@@ -88,10 +87,14 @@ foreach ( $skuid as $aSkuid ) {
     }
         
     $modx->toPlaceholder('categorylist', $categoryOutput, 'oa_magento'); 
+    $categoryChunk = $modx->getChunk('magentoCategoryWrapper');
+    $modx->toPlaceholder('categorywrapper', $categoryChunk, 'oa_magento'); 
     $output .= $modx->getChunk($productTpl);
+    
+    /* Limit */
+    $productCount++;
+    if ( $productCount == $limit ) break;
 }
 
 /* Set the product list placeholder */
 $modx->toPlaceholder('productlist', $output, 'oa_magento');
-
-/* 
