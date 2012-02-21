@@ -71,7 +71,7 @@ $attr = array(
 );
 
 $category = $modx->newObject('modCategory');
-$category->set('category', 'pant_StarRating');
+$category->set('category', 'oa_magento');
 
 /* Get chunks */
 include_once($sources['chunks'] . 'chunks.php');
