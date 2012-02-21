@@ -1,21 +1,16 @@
 <?php
 /**
- * pant_starrating Snippet
+ * magentoProduct Info Snippet
  *
- * @package pant_starrating
+ * @package oa_magento
  * @author S. Hamblett steve.hamblett@linux.com
  */ 
 
 $snippets = array();
 $s = $modx->newObject('modSnippet');
-$s->set('name', 'pant_starRating');
-$s->set('description', 'A Star Rating snippet for MODx Revolution');
-$s->set('snippet', file_get_contents($sources['snippets'] . 'starrating.snippet.php'));
+$s->set('name', 'magentoProductInfo');
+$s->set('description', 'A Magento store product snippet for MODx Revolution. Gets information for products,see the properties for set up values and the snippet itself for parameters and placeholders.');
+$s->set('snippet', file_get_contents($sources['snippets'] . 'magentoProductInfo.php'));
 $snippets[] = $s;
 
-$s = $modx->newObject('modSnippet');
-$s->set('name', 'pant_starRatingTopVotes');
-$s->set('description', 'Get the top rated votes');
-$s->set('snippet', file_get_contents($sources['snippets'] . 'topvotes.starrating.snippet.php'));
-$snippets[] = $s;
 

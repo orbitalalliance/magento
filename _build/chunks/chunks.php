@@ -1,21 +1,35 @@
 <?php
 /**
- * pant_starrating Chunks
+ * magentoProductInfo Chunks
  *
- * @package pant_starrating
+ * @package oa_magento
  * @author S. Hamblett steve.hamblett@linux.com
  */ 
 
 $chunks = array();
+
 $c= $modx->newObject('modChunk');
-$c->set('name', 'pant_starTpl');
-$c->set('description', 'Star Rating Default Template');
-$c->set('snippet', file_get_contents($sources['chunks'] . 'starTpl.html'));
+$c->set('name', 'magentoWrapper');
+$c->set('description', 'Magento product info default wrapper template');
+$c->set('snippet', file_get_contents($sources['chunks'] . 'magentoWrapper.html'));
 $chunks[] = $c;
 
 $c= $modx->newObject('modChunk');
-$c->set('name', 'pant_starTopVotesTpl');
-$c->set('description', 'Star Rating Default Top Votes Template');
-$c->set('snippet', file_get_contents($sources['chunks'] . 'starTopVotesTpl.html'));
+$c->set('name', 'magentoProduct');
+$c->set('description', 'Magento product default template');
+$c->set('snippet', file_get_contents($sources['chunks'] . 'magentoProduct.html'));
 $chunks[] = $c;
+
+$c= $modx->newObject('modChunk');
+$c->set('name', 'magentoCategory');
+$c->set('description', 'Magento category default template');
+$c->set('snippet', file_get_contents($sources['chunks'] . 'magentoCategory.html'));
+$chunks[] = $c;
+
+$c= $modx->newObject('modChunk');
+$c->set('name', 'magentoCategoryWrapper');
+$c->set('description', 'Magento product info default category wrapper template');
+$c->set('snippet', file_get_contents($sources['chunks'] . 'magentoCategoryWrapper.html'));
+$chunks[] = $c;
+
 

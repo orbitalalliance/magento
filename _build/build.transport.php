@@ -1,12 +1,11 @@
 <?php
-
 /**
- * Statistics (pant_statistics)
+ * Magento e-commerce interface (oa_magento)
  *
- * @author    S. Hamblett <steve.hamblett@linux.com>
- * For Pantechnicon
+ * @author S. Hamblett <steve.hamblett@linux.com>
+ * For Orbital Alliance
  *
- * @package  pant_statistics
+ * @package  oa_magento
  */
 
 $mtime = microtime();
@@ -18,9 +17,9 @@ set_time_limit(0);
 $base = dirname(dirname(__FILE__)) . '/';
 $sources = array(
     'root' => $base . '/',
-    'assets' => 'assets/components/pant_statistics',
-    'core' => 'core/components/pant_statistics',
-    'docs' => $base . '/assets/components/pant_statistics/docs/',
+    'assets' => 'assets/components/oa_magento',
+    'core' => 'core/components/oa_magento',
+    'docs' => $base . '/assets/components/oa_magento/docs/',
     'chunks' => 'chunks/',
     'snippets' => 'snippets/',
     'templates' => 'templates/',
@@ -30,10 +29,10 @@ $sources = array(
     'resolvers' => 'resolvers/',
     'settings' => 'settings/',
     'resources' => 'resources/',
-    'source_core' => $base . '/core/components/pant_statistics',
-    'source_assets' => $base . '/assets/components/pant_statistics',
-    'lexicon' => $base . 'core/components/pant_statistics/lexicon/',
-    'model' => $base . 'core/components/pant_statistics/model/',
+    'source_core' => $base . '/core/components/oa_magento',
+    'source_assets' => $base . '/assets/components/oa_magento',
+    'lexicon' => $base . 'core/components/oa_magento/lexicon/',
+    'model' => $base . 'core/components/oa_magento/model/',
 );
 unset($base);
 
@@ -45,14 +44,14 @@ echo '<pre>'; /* used for nice formatting of log messages */
 $modx->setLogLevel(modX::LOG_LEVEL_INFO);
 $modx->setLogTarget('ECHO');
 
-$name = 'pant_statistics';
+$name = 'oa_magento';
 $version = '1.0.0';
-$release = 'beta';
+$release = 'pl';
 
 $modx->loadClass('transport.modPackageBuilder', '', false, true);
 $builder = new modPackageBuilder($modx);
 $builder->createPackage($name, $version, $release);
-$builder->registerNamespace('pant_statistics', false, true, '{core_path}components/pant_statistics/');
+$builder->registerNamespace('oa_magento', false, true, '{core_path}components/oa_magento/');
 
 $attr = array(
     xPDOTransport::UNIQUE_KEY => 'category',
@@ -60,50 +59,44 @@ $attr = array(
     xPDOTransport::UPDATE_OBJECT => true,
     xPDOTransport::RELATED_OBJECTS => true,
     xPDOTransport::RELATED_OBJECT_ATTRIBUTES => array(
-        'modPlugin' => array(
+        'modChunk' => array(
             xPDOTransport::PRESERVE_KEYS => false,
             xPDOTransport::UPDATE_OBJECT => true,
             xPDOTransport::UNIQUE_KEY => 'name'),
-        xPDOTransport::RELATED_OBJECTS => true,
-        xPDOTransport::RELATED_OBJECT_ATTRIBUTES => array(
-            'modPluginEvent' => array(
-                xPDOTransport::PRESERVE_KEYS => true,
-                xPDOTransport::UPDATE_OBJECT => false,
-                xPDOTransport::UNIQUE_KEY => array('pluginid', 'event')
-        )))
+        ),
+        'modSnippet' => array(
+            xPDOTransport::PRESERVE_KEYS => false,
+            xPDOTransport::UPDATE_OBJECT => true,
+            xPDOTransport::UNIQUE_KEY => 'name')
 );
 
 $category = $modx->newObject('modCategory');
-$category->set('category', 'pant_statistics');
+$category->set('category', 'pant_StarRating');
 
-/* Get plugin */
-include_once($sources['plugins'] . 'plugins.php');
+/* Get chunks */
+include_once($sources['chunks'] . 'chunks.php');
+
+/* Get snippets */
+include_once($sources['snippets'] . 'snippets.php');
+$properties = include $sources['snippets'].'properties.inc.php';
+$snippets[0]->setProperties($properties);
+unset($properties);
 
 /* Add category items */
-$category->addMany($plugins);
-
+$category->addMany($chunks);
+$category->addMany($snippets);
 
 /* create a transport vehicle for the category data object */
 $vehicle = $builder->createVehicle($category, $attr);
 $vehicles[] = $vehicle;
 
-/* Resolvers, both php and file on the last vehicle */
-$vehicle = end($vehicles);
-
 $vehicle->resolve('file', array(
     'source' => $sources['source_assets'],
     'target' => "return MODX_ASSETS_PATH . 'components/';"));
-
 $vehicle->resolve('file', array(
     'source' => $sources['source_core'],
     'target' => "return MODX_CORE_PATH . 'components/';"));
 
-$vehicle->resolve('php',array(
-    'source' => $sources['resolvers'] . 'tables.resolver.php',
-    ));
-$vehicle->resolve('php', array(
-    'type' => 'php',
-    'source' => $sources['resolvers'] . 'resolver.php'));
 
 /* Add all the vehicles */
 foreach ($vehicles as $vehicle) {
@@ -112,8 +105,8 @@ foreach ($vehicles as $vehicle) {
 
 /* now pack in the license file, readme and setup options */
 $builder->setPackageAttributes(array(
-    'license' => file_get_contents($sources['docs'] . 'license.txt'),
-    'readme' => file_get_contents($sources['docs'] . 'readme.txt'),
+    'license' => file_get_contents($sources['docs'] . 'LICENSE.txt'),
+    'readme' => file_get_contents($sources['docs'] . 'README.txt'),
 ));
 
 /* zip up the package */
