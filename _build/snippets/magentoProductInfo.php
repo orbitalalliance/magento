@@ -21,7 +21,9 @@
  * 
  * Placeholders, all prefixed with oa_magento :-
  * 
- * Single 
+ * Single, all Magento product info parameters are available, refer to the 
+ * Magento documentation for a complete set, some of the more popular ones are :-
+ * 
  * sku          - The SKU
  * product_id   - The product Id
  * name         - Product name
@@ -38,6 +40,11 @@
  * productlist  - A list of the returned products as themed by the magentoProduct template
  * categorylist  - A list of the returned categories as themed by the magentoCategory template
  */
+
+/* Error code constants */
+define('100', "Requested store view not found.");
+define('101', "The product does not exist.");
+define('102', "Invalid data given.");
 
 /* Initialise our parameter set */
 $skuid = (!empty($skuid)) ? explode(',', $skuid) : 0;
@@ -58,9 +65,15 @@ $output = "";
 $categoryOutput = "";
 foreach ( $skuid as $aSkuid ) {
     
-    $productInfo = $proxy->call($sessionId, 'product.info', $aSkuid);
+    try {
+        $productInfo = $proxy->call($sessionId, 'product.info', $aSkuid);
+    } catch (SoapFault $e) {
+        $error = $e->faultstring;
+        $error = "ERROR - Magento returns - " . "'" . $error . "'";
+        $output .= $error . " - For SKU " . "'" . $aSkuid . "'";
+        continue;
+    }
     $modx->toPlaceholders($productInfo, 'oa_magento' );
-    $output .= $modx->getChunk($productTpl);
     $categories = $productInfo['categories'];
     if (!empty($categories) ) {
         
@@ -74,8 +87,11 @@ foreach ( $skuid as $aSkuid ) {
         $categoryOutput = "No Categories defined";
     }
         
-    $modx->toPlaceholder('categorylist', $categoryOutput, 'oa_magento');    
+    $modx->toPlaceholder('categorylist', $categoryOutput, 'oa_magento'); 
+    $output .= $modx->getChunk($productTpl);
 }
 
 /* Set the product list placeholder */
 $modx->toPlaceholder('productlist', $output, 'oa_magento');
+
+/* 
