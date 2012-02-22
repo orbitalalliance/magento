@@ -15,6 +15,12 @@ $c->set('snippet', file_get_contents($sources['chunks'] . 'magentoWrapper.html')
 $chunks[] = $c;
 
 $c= $modx->newObject('modChunk');
+$c->set('name', 'magentoWrapperFiltered');
+$c->set('description', 'Magento product info default filter wrapper template');
+$c->set('snippet', file_get_contents($sources['chunks'] . 'magentoWrapperFiltered.html'));
+$chunks[] = $c;
+
+$c= $modx->newObject('modChunk');
 $c->set('name', 'magentoProduct');
 $c->set('description', 'Magento product default template');
 $c->set('snippet', file_get_contents($sources['chunks'] . 'magentoProduct.html'));

@@ -79,7 +79,9 @@ include_once($sources['chunks'] . 'chunks.php');
 /* Get snippets */
 include_once($sources['snippets'] . 'snippets.php');
 $properties = include $sources['snippets'].'properties.inc.php';
-$snippets[0]->setProperties($properties);
+foreach ( $snippets as $snippet ) {
+    $snippet->setProperties($properties);
+}
 unset($properties);
 
 /* Add category items */
