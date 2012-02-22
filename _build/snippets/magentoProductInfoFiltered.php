@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Magento e-commerce interface (oa_magento)
  *
@@ -23,7 +24,7 @@
  * limit                - Limit to, defaults to 10
  * 
  * 
- * The follwong parameters are used by this snippet :-
+ * The following parameters are used by this snippet :-
  * 
  * toJSON               - Return the dataset as a JSON string rather than running it through the templates
  *                        used when this snippet is wrapped, defaults to 0
@@ -49,7 +50,6 @@
  *                        gteq  - value,
  *                        lteq  - value,
  *                
- * 
  *                        Note no sanity checking is done by this snippet for instance
  *                        gt may only make sense on numeric fields such as price.
  * 
@@ -70,40 +70,48 @@ $toJSON = $toJSON == 1 ? true : false;
 $filters = (!empty($filters)) ? explode(',', $filters) : 0;
 $outputSeparator = isset($outputSeparator) ? $outputSeparator : "\n";
 
-if ( $filter = 0 ) return;
+if ($filters == 0)
+    return;
 
 /* Create the SOAP proxy */
 $proxy = new SoapClient($WSDLURL);
-$sessionId = $proxy->login($apiUser, $apiKey);
+try {
+    $sessionId = $proxy->login($apiUser, $apiKey);
+} catch (SoapFault $e) {
+
+    return "SOAP Fault - Cannot login, error is --> $e->faultstring";
+}
+
+/* Process the filter */
 
 /* Create the filter list */
 $filterList = array();
-foreach ( $filters as $filter ) {
-    
+foreach ($filters as $filter) {
+
     $filterComponents = explode(':', $filter);
     $field = $filterComponents[0];
     $operator = $filterComponents[1];
-    $values = explode('-',$filterComponents[2]);
-    switch ( $field ) {
-        
+    $values = explode('-', $filterComponents[2]);
+    switch ($field) {
+
         case 'from':
-      
+
             $valArray = array('from' => $values[0],
-                              'to' => $values[1]);
+                'to' => $values[1]);
             break;
-        
+
         case 'in':
         case 'nin':
-            
-            $inValues = implode(',',$values );
+
+            $inValues = implode(',', $values);
             $valArray = array('in' => $inValues);
             $WSDLURLbreak;
-            
+
         default :
-            
+
             $valArray = array($operator => $values[0]);
     }
-    
+
     $filterList[$field] = $valArray;
 }
 
@@ -111,33 +119,35 @@ foreach ( $filters as $filter ) {
 try {
     $products = $proxy->call($sessionId, 'product.list', array($filterList));
 } catch (SoapFault $e) {
-        
-        return "SOAP Fault - Cannot get all products, error is --> $e->faultstring";
 
+    return "SOAP Fault - Cannot get all filtered products, error is --> $e->faultstring";
 }
 
-/* Get the sku's and pass on */
+
+/* Get the sku's */
 $skuArray = array();
-foreach ( $products as $product ) {
-    
+foreach ($products as $product) {
+
     $skuArray[] = $product['sku'];
-    
 }
+
 /* Call the magentoProductInfoSnippet with the return type as JSON */
 $skuid = implode(',', $skuArray);
-$productJSON = $modx->runSnippet('magentoProductInfo', array ('wrapperTpl' => $wrapperTpl,
-                                               'productTpl' => $productTpl,
-                                               'categoryTpl' => $categoryTpl,
-                                               'categoryWrapperTpl' => $categoryWrapperTpl,
-                                               'sortby' => $sortby,
-                                               'sortdir' => $sortdir,
-                                               'limit' => $limit,
-                                               'skuid' => $skuid,
-                                               'toJSON' => 1,
-                                               'outputSeperator' => $outputSeperator));
+$productJSON = $modx->runSnippet('magentoProductInfo', array('wrapperTpl' => $wrapperTpl,
+    'productTpl' => $productTpl,
+    'categoryTpl' => $categoryTpl,
+    'categoryWrapperTpl' => $categoryWrapperTpl,
+    'sortby' => $sortby,
+    'sortdir' => $sortdir,
+    'limit' => $limit,
+    'skuid' => $skuid,
+    'toJSON' => 1,
+    'outputSeperator' => $outputSeperator,
+    'category' => $category));
 
 $productOutput = json_decode($productJSON, true);
 
 /* Return the output for use by getPage etc */
 $output = implode($outputSeparator, $productOutput);
+$proxy->endSession($sessionId);
 return $output;
