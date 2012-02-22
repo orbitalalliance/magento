@@ -10,7 +10,8 @@
  * Parameters :-
  * 
  * allProducts          - If set to 1 all products will be retrieved from the store, the skuid parameter
- *                        is ignored along with limit, defaults to 0
+ *                        is ignored along with limit, defaults to 0. BEWARE, if your product list is ver large
+ *                        this could take a while.
  * skuid                - A single SKU identifier or a comma seperated list of SKU's
  * wrapperTpl           - An outer wrapper template for results returned, defaults to magentoWrapper
  * productTpl           - A template for an individual product, defaults to magentoProduct
@@ -119,13 +120,6 @@ if ( $sortdir == 'ASC') {
     
 }
 
-/* If toJSON selected return the dataset here */
-if ( $toJSON ) {
-    
-    $outputString = json_encode($productArray);
-    return $outputString;
-}
-
 /* Process the products through the templates */
 $productOutput = array();
 $categoryOutput = "";
@@ -165,6 +159,13 @@ foreach ( $productArray as $key => $productInfo) {
  
 /* Set the product list placeholder */
 $modx->toPlaceholder('productlist', $productOutput, 'oa_magento');
+
+/* If toJSON selected return the dataset here */
+if ( $toJSON ) {
+    
+    $outputString = json_encode($productOutput);
+    return $outputString;
+}
 
 /* Return the output for use by getPage etc */
 $output = implode($outputSeparator, $productOutput);
