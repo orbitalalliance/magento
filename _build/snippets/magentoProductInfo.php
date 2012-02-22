@@ -9,6 +9,8 @@
  * 
  * Parameters :-
  * 
+ * allProducts          - If set to 1 all products will be retrieved from the store, the skuid parameter
+ *                        is ignored along with limit, defaults to 0
  * skuid                - A single SKU identifier or a comma seperated list of SKU's
  * wrapperTpl           - An outer wrapper template for results returned, defaults to magentoWrapper
  * productTpl           - A template for an individual product, defaults to magentoProduct
@@ -45,6 +47,7 @@
  */
 
 /* Initialise our parameter set */
+$allProducts = $allProducts == 1 ? true : false;
 $skuid = (!empty($skuid)) ? explode(',', $skuid) : 0;
 $wrapperTpl = !empty($wrapperTpl) ? $wrapperTpl : 'magentoWrapper';
 $categoryWrapperTpl = !empty($categoryWrapperTpl) ? $categoryWrapperTpl : 'magentoCategoryWrapper';
@@ -60,7 +63,25 @@ $outputSeparator = isset($outputSeparator) ? $outputSeparator : "\n";
 $proxy = new SoapClient($WSDLURL);
 $sessionId = $proxy->login($apiUser, $apiKey);
 
+/* Check for all products, if set get all the skuid's */
+$useLimit = true;
+if ( $allProducts ) {
+    
+    $skuid = array();
+    $useLimit = false;
+    
+    try {
+        $products = $proxy->call($sessionId, 'product.list');
+    } catch (SoapFault $e) {
+        
+        return "SOAP Fault - Cannot get all products, error is --> $e->faultstring";
+    }
+    foreach ( $products as $product ) {
+        
+        $skuid[] = $product['sku'];
+    }
 
+}
 /* Get the products from the SKUID(s) */
 $productArray = array();
 $sortArray = array();
@@ -133,8 +154,10 @@ foreach ( $productArray as $key => $productInfo) {
     $productOutput[] = $modx->getChunk($productTpl);
     
     /* Limit */
-    $productCount++;
-    if ( $productCount == $limit ) break;
+    if ( $useLimit ) {
+        $productCount++;
+        if ( $productCount == $limit ) break;
+    }
 }
 
 
