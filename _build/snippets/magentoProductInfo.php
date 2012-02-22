@@ -17,6 +17,9 @@
  * sortby               - Sortby field, one of sku, name, price or product_id
  * sortdir              - Direction to sort, defaults to ASC
  * limit                - Limit to, defaults to 10
+ * toJSON               - Return the dataset as a JSON string rather than running it through the templates
+ *                        used when this snippet is wrapped, defaults to 0
+ * outputSeparator      - An optional string to separate each tpl instance [default="\n"]
  * 
  * 
  * Placeholders, all prefixed with oa_magento :-
@@ -50,6 +53,8 @@ $categoryTpl = !empty($categoryTpl) ? $categoryTpl : 'magentoCategory';
 $limit = isset($limit) ? (integer) $limit : 10;
 $sortby = isset($sortby) ? $sortby : 'sku';
 $sortdir = isset($sortdir) ? $sortdir : 'ASC';
+$toJSON = $toJSON == 1 ? true : false;
+$outputSeparator = isset($outputSeparator) ? $outputSeparator : "\n";
 
 /* Create the SOAP proxy */
 $proxy = new SoapClient($WSDLURL);
@@ -67,13 +72,18 @@ foreach ( $skuid as $aSkuid ) {
     } catch (SoapFault $e) {
         continue;
     }
-    if ($sortby == 'price') {
+    /* Sortby, only if the sortby key is valid for a product */
+    if ( isset($productInfo[$sortby]) ) {
         
-        $productArray[floatval($productInfo[$sortby])] = $productInfo;
-        
-    } else {
+        if ($sortby == 'price') {
+
+            $productArray[floatval($productInfo[$sortby])] = $productInfo;
+
+        } else {
+
+            $productArray[$productInfo[$sortby]] = $productInfo;
+        }
     
-        $productArray[$productInfo[$sortby]] = $productInfo;
     }
 }
 
@@ -88,8 +98,15 @@ if ( $sortdir == 'ASC') {
     
 }
 
-/* Process the products */
-$output = "";
+/* If toJSON selected return the dataset here */
+if ( $toJSON ) {
+    
+    $outputString = json_encode($productArray);
+    return $outputString;
+}
+
+/* Process the products through the templates */
+$productOutput = array();
 $categoryOutput = "";
 $productCount = 0;
 foreach ( $productArray as $key => $productInfo) {
@@ -113,7 +130,7 @@ foreach ( $productArray as $key => $productInfo) {
     $modx->toPlaceholder('categorylist', $categoryOutput, 'oa_magento'); 
     $categoryChunk = $modx->getChunk('magentoCategoryWrapper');
     $modx->toPlaceholder('categorywrapper', $categoryChunk, 'oa_magento'); 
-    $output .= $modx->getChunk($productTpl);
+    $productOutput[] = $modx->getChunk($productTpl);
     
     /* Limit */
     $productCount++;
@@ -124,4 +141,9 @@ foreach ( $productArray as $key => $productInfo) {
  
  
 /* Set the product list placeholder */
-$modx->toPlaceholder('productlist', $output, 'oa_magento');
+$modx->toPlaceholder('productlist', $productOutput, 'oa_magento');
+
+/* Return the output for use by getPage etc */
+$output = implode($outputSeparator, $productOutput);
+return $output;
+    
