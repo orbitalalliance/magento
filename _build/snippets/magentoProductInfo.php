@@ -42,10 +42,14 @@
  * manufacturer - Product manufacturer
  * cost         - Product cost
  * description  - Product description
+ * imageURL     - Product image URL
+ * imagelabel   - Product image label
+ * pageURL      - URL of the product's store page
  * 
  * Groups
- * productlist  - A list of the returned products as themed by the magentoProduct template
- * categorylist  - A list of the returned categories as themed by the magentoCategory template
+ * productlist      - A list of the returned products as themed by the magentoProduct template
+ * categorylist     - A list of the returned categories as themed by the magentoCategory template
+ * 
  */
 /* Initialise our parameter set */
 $allProducts = $allProducts == 1 ? true : false;
@@ -170,10 +174,25 @@ foreach ($productArray as $key => $productInfo) {
 
         $categoryOutput = "No Categories defined";
     }
-
     $modx->toPlaceholder('categorylist', $categoryOutput, 'oa_magento');
     $categoryChunk = $modx->getChunk('magentoCategoryWrapper');
     $modx->toPlaceholder('categorywrapper', $categoryChunk, 'oa_magento');
+    
+    /* Get the image data */
+    try {
+        $imageInfo = $proxy->call($sessionId, 'product_media.list', $productInfo['sku']);
+    } catch (SoapFault $e) {
+       
+    }
+    $imageInfoData = $imageInfo[0];
+    $modx->toPlaceholder('imageURL',$imageInfoData['url'] , 'oa_magento');
+    $modx->toPlaceholder('imagelabel',$imageInfoData['label'] , 'oa_magento');
+    
+    /* Page URL */
+    $pageURL = $storeURL . $productInfo['url_path'];
+    $modx->toPlaceholder('pageURL', $pageURL, 'oa_magento');
+    
+    /* Product output */
     $productOutput[] = $modx->getChunk($productTpl);
 
     /* Limit */
@@ -188,7 +207,8 @@ foreach ($productArray as $key => $productInfo) {
 
 
 /* Set the product list placeholder */
-$modx->toPlaceholder('productlist', $productOutput, 'oa_magento');
+$productOutputList = implode($outputSeparator, $productOutput);
+$modx->toPlaceholder('productlist', $productOutputList, 'oa_magento');
 
 /* If toJSON selected return the dataset here */
 if ($toJSON) {

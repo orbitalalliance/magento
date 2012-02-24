@@ -26,6 +26,13 @@ $properties = array(
         'type' => 'textfield',
         'options' => '',
         'value' => 'shamblett',
+    ),
+    array(
+        'name' => 'storeURL',
+        'desc' => 'The URL of the shop itself. Needs the trailing slash.',
+        'type' => 'textfield',
+        'options' => '',
+        'value' => 'http://shamblett.gostorego.com/',
     )
 );
 

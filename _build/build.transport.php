@@ -45,7 +45,7 @@ $modx->setLogLevel(modX::LOG_LEVEL_INFO);
 $modx->setLogTarget('ECHO');
 
 $name = 'oa_magento';
-$version = '1.0.0';
+$version = '1.1.0';
 $release = 'pl';
 
 $modx->loadClass('transport.modPackageBuilder', '', false, true);
