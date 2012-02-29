@@ -1,0 +1,21 @@
+A Magento store product information snippet for MOD Revolution.
+
+Author S. Hamblett <steve.hamblett@linux.com>.
+Donated to the MODX community by Orbital Alliance.
+
+This package allows querying of product information from Magento stores
+using the SOAP API provided by Magento.
+
+It allows querying by SKU(s) and filtering by cataegory. Limiting and
+sorting are also supported. A product information filtering snippet is 
+also provided that leverages the Magento product_info filtering API.
+
+The package effectively supplies a 'getResources' snippet for Magento store
+products.
+
+Refer to the documentation in the headers of the two snippets for more
+detailed information on parameters, placeholders etc.
+
+
+
+
