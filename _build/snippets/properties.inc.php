@@ -11,28 +11,28 @@ $properties = array(
         'desc' => 'The WSDL URL for the stores Soap API.',
         'type' => 'textfield',
         'options' => '',
-        'value' => 'http://shamblett.gostorego.com/api/soap/?wsdl',
+        'value' => '',
     ),
     array(
         'name' => 'apiKey',
         'desc' => 'Magento store API Key(user password).',
         'type' => 'textfield',
         'options' => '',
-        'value' => 'byrt3kav',
+        'value' => '',
     ),
     array(
         'name' => 'apiUser',
         'desc' => 'Magento store API user(user name).',
         'type' => 'textfield',
         'options' => '',
-        'value' => 'shamblett',
+        'value' => '',
     ),
     array(
         'name' => 'storeURL',
         'desc' => 'The URL of the shop itself. Needs the trailing slash.',
         'type' => 'textfield',
         'options' => '',
-        'value' => 'http://shamblett.gostorego.com/',
+        'value' => '',
     )
 );
 

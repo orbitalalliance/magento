@@ -50,7 +50,16 @@
  * productlist      - A list of the returned products as themed by the magentoProduct template
  * categorylist     - A list of the returned categories as themed by the magentoCategory template
  * 
+ * Please inspect and set the Magento SOAP API parameters on the properties tab of 
+ * this snippet before continuing.
  */
+/* Check for valid SOAP parameters */
+if ( ($WSDLUR == "") || ($apiKey == "") || ($apiUser == "") || ($storeURL == "")) {
+    
+    return "Error - SOAP parameters not set, please inspect the properties tab of this snippet.";
+    
+}
+
 /* Initialise our parameter set */
 $allProducts = $allProducts == 1 ? true : false;
 $skuid = (!empty($skuid)) ? explode(',', $skuid) : 0;

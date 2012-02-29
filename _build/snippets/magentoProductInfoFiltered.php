@@ -63,7 +63,16 @@
  * 
  * Placeholders are set by the magentoProductInfo snippet, see the snippet for details
  * 
+ * Please inspect and set the Magento SOAP API parameters on the properties tab of 
+ * this snippet before continuing.
  */
+
+/* Check for valid SOAP parameters */
+if ( ($WSDLUR == "") || ($apiKey == "") || ($apiUser == "") || ($storeURL == "")) {
+    
+    return "Error - SOAP parameters not set, please inspect the properties tab of this snippet.";
+    
+}
 
 /* Initialise our parameter set */
 $toJSON = $toJSON == 1 ? true : false;
