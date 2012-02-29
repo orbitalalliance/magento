@@ -107,8 +107,8 @@ foreach ($vehicles as $vehicle) {
 
 /* now pack in the license file, readme and setup options */
 $builder->setPackageAttributes(array(
-    'license' => file_get_contents($sources['docs'] . 'LICENSE.txt'),
-    'readme' => file_get_contents($sources['docs'] . 'README.txt'),
+    'license' => file_get_contents($sources['docs'] . 'license.txt'),
+    'readme' => file_get_contents($sources['docs'] . 'readme.txt'),
 ));
 
 /* zip up the package */
